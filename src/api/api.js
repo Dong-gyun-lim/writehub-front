@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || '';
+const BASE_URL = import.meta.env.VITE_API_URL || ''; //v2
 
 // fetch 공통 함수
 const request = async (method, url, body = null) => {
