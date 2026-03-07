@@ -1,0 +1,185 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { memberApi, followApi, subscriptionApi, postApi } from '../api/api';
+
+function ProfilePage() {
+    const { memberId } = useParams();
+    const navigate = useNavigate();
+
+    const [profile, setProfile] = useState(null);
+    const [me, setMe] = useState(null);
+    const [posts, setPosts] = useState([]);
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isSubscribed, setIsSubscribed] = useState(false);
+    const [error, setError] = useState('');
+
+    const isMe = me?.memberId === Number(memberId);
+
+    useEffect(() => {
+        memberApi
+            .getMe()
+            .then(setMe)
+            .catch(() => {});
+        memberApi
+            .getProfile(memberId)
+            .then(setProfile)
+            .catch((e) => setError(e.message));
+        postApi
+            .getByMember(memberId)
+            .then((data) => setPosts(data.content))
+            .catch(() => {});
+    }, [memberId]);
+
+    // 팔로우 여부 확인
+    useEffect(() => {
+        if (!me) return;
+        followApi
+            .getFollowing(me.memberId)
+            .then((data) => {
+                const following = data.content.some(
+                    (f) => f.memberId === Number(memberId)
+                );
+                setIsFollowing(following);
+            })
+            .catch(() => {});
+        subscriptionApi
+            .getSubscriptions(me.memberId)
+            .then((data) => {
+                const subscribed = data.content.some(
+                    (s) => s.memberId === Number(memberId)
+                );
+                setIsSubscribed(subscribed);
+            })
+            .catch(() => {});
+    }, [me, memberId]);
+
+    const handleFollow = async () => {
+        try {
+            if (isFollowing) {
+                await followApi.unfollow(memberId);
+                setIsFollowing(false);
+            } else {
+                await followApi.follow(memberId);
+                setIsFollowing(true);
+            }
+            // 팔로워 수 갱신
+            memberApi.getProfile(memberId).then(setProfile);
+        } catch (e) {
+            setError(e.message);
+        }
+    };
+
+    const handleSubscribe = async () => {
+        try {
+            if (isSubscribed) {
+                await subscriptionApi.unsubscribe(memberId);
+                setIsSubscribed(false);
+            } else {
+                await subscriptionApi.subscribe(memberId);
+                setIsSubscribed(true);
+            }
+            memberApi.getProfile(memberId).then(setProfile);
+        } catch (e) {
+            setError(e.message);
+        }
+    };
+
+    if (!profile) return <div style={{ padding: '20px' }}>로딩 중...</div>;
+
+    return (
+        <div style={{ maxWidth: '700px', margin: '0 auto', padding: '20px' }}>
+            {/* 뒤로가기 */}
+            <button
+                onClick={() => navigate('/feed')}
+                style={{ marginBottom: '20px' }}
+            >
+                ← 피드로
+            </button>
+
+            {/* 프로필 정보 */}
+            <div
+                style={{
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    padding: '20px',
+                    marginBottom: '20px',
+                }}
+            >
+                <h2 style={{ margin: '0 0 8px 0' }}>{profile.username}</h2>
+                <p style={{ color: '#888', margin: '0 0 16px 0' }}>
+                    {profile.bio || '소개가 없습니다.'}
+                </p>
+
+                {/* 통계 */}
+                <div
+                    style={{
+                        display: 'flex',
+                        gap: '20px',
+                        marginBottom: '16px',
+                    }}
+                >
+                    <span>게시글 {profile.postCount}</span>
+                    <span>팔로워 {profile.followerCount}</span>
+                    <span>팔로잉 {profile.followingCount}</span>
+                    <span>구독자 {profile.subscriberCount}</span>
+                </div>
+
+                {/* 팔로우/구독 버튼 (본인 제외) */}
+                {!isMe && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                            onClick={handleFollow}
+                            style={{
+                                padding: '8px 20px',
+                                background: isFollowing ? '#eee' : '#333',
+                                color: isFollowing ? '#333' : '#fff',
+                            }}
+                        >
+                            {isFollowing ? '언팔로우' : '팔로우'}
+                        </button>
+                        <button
+                            onClick={handleSubscribe}
+                            style={{
+                                padding: '8px 20px',
+                                background: isSubscribed ? '#eee' : '#333',
+                                color: isSubscribed ? '#333' : '#fff',
+                            }}
+                        >
+                            {isSubscribed ? '구독취소' : '구독'}
+                        </button>
+                    </div>
+                )}
+                {error && (
+                    <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>
+                )}
+            </div>
+
+            {/* 게시글 목록 */}
+            <h3>게시글</h3>
+            {posts.length === 0 && (
+                <p style={{ color: '#888' }}>게시글이 없습니다.</p>
+            )}
+            {posts.map((post) => (
+                <div
+                    key={post.postId}
+                    onClick={() => navigate(`/post/${post.postId}`)}
+                    style={{
+                        border: '1px solid #ddd',
+                        padding: '16px',
+                        marginBottom: '12px',
+                        cursor: 'pointer',
+                        borderRadius: '8px',
+                    }}
+                >
+                    <h4 style={{ margin: '0 0 8px 0' }}>{post.title}</h4>
+                    <div style={{ color: '#888', fontSize: '14px' }}>
+                        {new Date(post.createdAt).toLocaleDateString()} · 조회{' '}
+                        {post.viewCount}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+export default ProfilePage;
