@@ -76,7 +76,9 @@ function FeedPage() {
                     marginBottom: '20px',
                 }}
             >
-                <h1>✍️ WriteHub</h1>
+                <h1 onClick={handleReset} style={{ cursor: 'pointer' }}>
+                    ✍️ WriteHub 🐱
+                </h1>
                 <div style={{ display: 'flex', gap: '10px' }}>
                     {me && (
                         <button
