@@ -39,6 +39,14 @@ export const postApi = {
     update: (postId, data) => request('PUT', `/api/posts/${postId}`, data),
     delete: (postId) => request('DELETE', `/api/posts/${postId}`),
     getByMember: (memberId) => request('GET', `/api/members/${memberId}/posts`),
+    search: (keyword, tag, page = 0) => {
+        const params = new URLSearchParams();
+        if (keyword) params.append('keyword', keyword);
+        if (tag) params.append('tag', tag);
+        params.append('page', page);
+        params.append('size', 10);
+        return request('GET', `/api/posts/search?${params.toString()}`);
+    },
 };
 
 // 팔로우 API
@@ -56,3 +64,4 @@ export const subscriptionApi = {
     getSubscriptions: (memberId) => request('GET', `/api/members/${memberId}/subscriptions`),
     getSubscribers: (creatorId) => request('GET', `/api/members/${creatorId}/subscribers`),
 };
+

@@ -7,6 +7,9 @@ function FeedPage() {
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [me, setMe] = useState(null);
+    const [keyword, setKeyword] = useState('');
+    const [tag, setTag] = useState('');
+    const [isSearchMode, setIsSearchMode] = useState(false);
     const navigate = useNavigate();
 
     // 내 정보 조회
@@ -19,14 +22,43 @@ function FeedPage() {
 
     // 게시글 목록 조회
     useEffect(() => {
+        if (isSearchMode) {
+            postApi
+                .search(keyword, tag, page)
+                .then((data) => {
+                    setPosts(data.content);
+                    setTotalPages(data.totalPages);
+                })
+                .catch((e) => console.error(e));
+        } else {
+            postApi
+                .getAll(page)
+                .then((data) => {
+                    setPosts(data.content);
+                    setTotalPages(data.totalPages);
+                })
+                .catch((e) => console.error(e));
+        }
+    }, [page, isSearchMode]);
+
+    const handleSearch = () => {
+        setPage(0);
+        setIsSearchMode(true);
         postApi
-            .getAll(page)
+            .search(keyword, tag, 0)
             .then((data) => {
                 setPosts(data.content);
                 setTotalPages(data.totalPages);
             })
             .catch((e) => console.error(e));
-    }, [page]);
+    };
+
+    const handleReset = () => {
+        setKeyword('');
+        setTag('');
+        setIsSearchMode(false);
+        setPage(0);
+    };
 
     const handleLogout = async () => {
         await memberApi.logout();
@@ -55,6 +87,42 @@ function FeedPage() {
                     )}
                     <button onClick={handleLogout}>로그아웃</button>
                 </div>
+            </div>
+
+            {/* 검색창 */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                <input
+                    placeholder="키워드 검색"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    style={{ flex: 1, padding: '8px' }}
+                />
+                <input
+                    placeholder="태그 검색"
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    style={{ flex: 1, padding: '8px' }}
+                />
+                <button
+                    onClick={handleSearch}
+                    style={{
+                        padding: '8px 16px',
+                        background: '#333',
+                        color: '#fff',
+                    }}
+                >
+                    검색
+                </button>
+                {isSearchMode && (
+                    <button
+                        onClick={handleReset}
+                        style={{ padding: '8px 16px', background: '#eee' }}
+                    >
+                        초기화
+                    </button>
+                )}
             </div>
 
             {/* 게시글 작성 버튼 */}
