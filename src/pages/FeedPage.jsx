@@ -117,7 +117,19 @@ function FeedPage() {
                             marginBottom: '8px',
                         }}
                     >
-                        {post.authorName} ·{' '}
+                        <span
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/profile/${post.authorId}`);
+                            }}
+                            style={{
+                                cursor: 'pointer',
+                                textDecoration: 'underline',
+                            }}
+                        >
+                            {post.authorName}
+                        </span>
+                        {' · '}
                         {new Date(post.createdAt).toLocaleDateString()} · 조회{' '}
                         {post.viewCount}
                     </div>
