@@ -40,7 +40,14 @@ function PostPage() {
                     visibility: data.visibility,
                 });
             })
-            .catch((e) => setError(e.message));
+            .catch((e) => {
+                if (e.message.startsWith('403')) {
+                    alert('구독자 전용 게시글입니다.');
+                    navigate('/feed');
+                } else {
+                    setError(e.message);
+                }
+            });
     }, [postId]);
 
     const handleChange = (e) => {

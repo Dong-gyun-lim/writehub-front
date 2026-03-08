@@ -75,16 +75,7 @@ function FeedPage() {
             {posts.map((post) => (
                 <div
                     key={post.postId}
-                    onClick={() => {
-                        if (
-                            post.visibility === 'SUBSCRIBER_ONLY' &&
-                            me?.memberId !== post.authorId
-                        ) {
-                            alert('구독자 전용 게시글입니다.');
-                            return;
-                        }
-                        navigate(`/post/${post.postId}`);
-                    }}
+                    onClick={() => navigate(`/post/${post.postId}`)}
                     style={{
                         border: '1px solid #ddd',
                         padding: '16px',

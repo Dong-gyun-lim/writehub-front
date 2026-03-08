@@ -13,7 +13,7 @@ const request = async (method, url, body = null) => {
 
     if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || '요청 실패');
+        throw new Error(`${response.status}:${error.message || '요청 실패'}`);
     }
 
     // 204 No Content는 body 없음
