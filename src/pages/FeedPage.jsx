@@ -75,7 +75,13 @@ function FeedPage() {
             {posts.map((post) => (
                 <div
                     key={post.postId}
-                    onClick={() => navigate(`/post/${post.postId}`)}
+                    onClick={() => {
+                        if (post.visibility === 'SUBSCRIBER_ONLY') {
+                            alert('구독자 전용 게시글입니다.');
+                            return;
+                        }
+                        navigate(`/post/${post.postId}`);
+                    }}
                     style={{
                         border: '1px solid #ddd',
                         padding: '16px',
@@ -84,7 +90,23 @@ function FeedPage() {
                         borderRadius: '8px',
                     }}
                 >
-                    <h3 style={{ margin: '0 0 8px 0' }}>{post.title}</h3>
+                    <h3 style={{ margin: '0 0 8px 0' }}>
+                        {post.title}
+                        {post.visibility === 'SUBSCRIBER_ONLY' && (
+                            <span
+                                style={{
+                                    marginLeft: '8px',
+                                    fontSize: '12px',
+                                    background: '#ffeeba',
+                                    color: '#856404',
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                }}
+                            >
+                                🔒 구독자 전용
+                            </span>
+                        )}
+                    </h3>
                     <div
                         style={{
                             color: '#888',
