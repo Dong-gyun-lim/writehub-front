@@ -5,7 +5,7 @@ import { postApi, memberApi } from '../api/api';
 function PostPage() {
     const { postId } = useParams();
     const navigate = useNavigate();
-    const isNew = postId === 'new';
+    const isNew = !postId || postId === 'new';
 
     const [post, setPost] = useState(null);
     const [me, setMe] = useState(null);
