@@ -91,13 +91,11 @@ function ProfilePage() {
 
     const handleUpdateProfile = async () => {
         try {
-            await memberApi.updateProfile({ nickname, bio });
+            const updated = await memberApi.updateProfile({ nickname, bio });
+            setProfile(updated);
+            setNickname(updated.nickname || '');
+            setBio(updated.bio || '');
             setIsEditing(false);
-            memberApi.getProfile(memberId).then((data) => {
-                setProfile(data);
-                setNickname(data.nickname || '');
-                setBio(data.bio || '');
-            });
         } catch (e) {
             setError(e.message);
         }
