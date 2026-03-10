@@ -29,6 +29,7 @@ export const memberApi = {
     getAll: () => request('GET', '/api/members'),
     getMe: () => request('GET', '/api/members/me'),
     getProfile: (memberId) => request('GET', `/api/members/${memberId}`),
+    updateProfile: (data) => request('PATCH', '/api/members/me', data),
 };
 
 // 게시글 API

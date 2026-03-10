@@ -11,6 +11,9 @@ function ProfilePage() {
     const [posts, setPosts] = useState([]);
     const [isFollowing, setIsFollowing] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [nickname, setNickname] = useState('');
+    const [bio, setBio] = useState('');
     const [error, setError] = useState('');
 
     const isMe = me?.memberId === Number(memberId);
@@ -22,7 +25,11 @@ function ProfilePage() {
             .catch(() => {});
         memberApi
             .getProfile(memberId)
-            .then(setProfile)
+            .then((data) => {
+                setProfile(data);
+                setNickname(data.nickname || '');
+                setBio(data.bio || '');
+            })
             .catch((e) => setError(e.message));
         postApi
             .getByMember(memberId)
@@ -30,7 +37,6 @@ function ProfilePage() {
             .catch(() => {});
     }, [memberId]);
 
-    // 팔로우 여부 확인
     useEffect(() => {
         if (!me) return;
         followApi
@@ -62,7 +68,6 @@ function ProfilePage() {
                 await followApi.follow(memberId);
                 setIsFollowing(true);
             }
-            // 팔로워 수 갱신
             memberApi.getProfile(memberId).then(setProfile);
         } catch (e) {
             setError(e.message);
@@ -84,11 +89,24 @@ function ProfilePage() {
         }
     };
 
+    const handleUpdateProfile = async () => {
+        try {
+            await memberApi.updateProfile({ nickname, bio });
+            setIsEditing(false);
+            memberApi.getProfile(memberId).then((data) => {
+                setProfile(data);
+                setNickname(data.nickname || '');
+                setBio(data.bio || '');
+            });
+        } catch (e) {
+            setError(e.message);
+        }
+    };
+
     if (!profile) return <div style={{ padding: '20px' }}>로딩 중...</div>;
 
     return (
         <div style={{ maxWidth: '700px', margin: '0 auto', padding: '20px' }}>
-            {/* 뒤로가기 */}
             <button
                 onClick={() => navigate('/feed')}
                 style={{ marginBottom: '20px' }}
@@ -96,7 +114,6 @@ function ProfilePage() {
                 ← 피드로
             </button>
 
-            {/* 프로필 정보 */}
             <div
                 style={{
                     border: '1px solid #ddd',
@@ -105,12 +122,22 @@ function ProfilePage() {
                     marginBottom: '20px',
                 }}
             >
-                <h2 style={{ margin: '0 0 8px 0' }}>{profile.username}</h2>
+                <h2 style={{ margin: '0 0 4px 0' }}>
+                    {profile.nickname || profile.username}
+                </h2>
+                <p
+                    style={{
+                        color: '#aaa',
+                        margin: '0 0 8px 0',
+                        fontSize: '14px',
+                    }}
+                >
+                    {profile.username}
+                </p>
                 <p style={{ color: '#888', margin: '0 0 16px 0' }}>
                     {profile.bio || '소개가 없습니다.'}
                 </p>
 
-                {/* 통계 */}
                 <div
                     style={{
                         display: 'flex',
@@ -124,7 +151,6 @@ function ProfilePage() {
                     <span>구독자 {profile.subscriberCount}</span>
                 </div>
 
-                {/* 팔로우/구독 버튼 (본인 제외) */}
                 {!isMe && (
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <button
@@ -149,12 +175,70 @@ function ProfilePage() {
                         </button>
                     </div>
                 )}
+
+                {isMe && (
+                    <div style={{ marginTop: '16px' }}>
+                        <button
+                            onClick={() => setIsEditing(!isEditing)}
+                            style={{
+                                padding: '8px 20px',
+                                background: '#333',
+                                color: '#fff',
+                            }}
+                        >
+                            {isEditing ? '취소' : '프로필 수정'}
+                        </button>
+
+                        {isEditing && (
+                            <div style={{ marginTop: '12px' }}>
+                                <div style={{ marginBottom: '8px' }}>
+                                    <label>닉네임</label>
+                                    <input
+                                        value={nickname}
+                                        onChange={(e) =>
+                                            setNickname(e.target.value)
+                                        }
+                                        style={{
+                                            display: 'block',
+                                            width: '100%',
+                                            padding: '8px',
+                                            marginTop: '4px',
+                                        }}
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '8px' }}>
+                                    <label>소개</label>
+                                    <textarea
+                                        value={bio}
+                                        onChange={(e) => setBio(e.target.value)}
+                                        style={{
+                                            display: 'block',
+                                            width: '100%',
+                                            padding: '8px',
+                                            marginTop: '4px',
+                                        }}
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleUpdateProfile}
+                                    style={{
+                                        padding: '8px 20px',
+                                        background: '#333',
+                                        color: '#fff',
+                                    }}
+                                >
+                                    저장
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {error && (
                     <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>
                 )}
             </div>
 
-            {/* 게시글 목록 */}
             <h3>게시글</h3>
             {posts.length === 0 && (
                 <p style={{ color: '#888' }}>게시글이 없습니다.</p>
