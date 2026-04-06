@@ -26,16 +26,16 @@ function FeedPage() {
             postApi
                 .search(keyword, tag, page)
                 .then((data) => {
-                    setPosts(data.content);
-                    setTotalPages(data.totalPages);
+                    setPosts(data.content ?? []);
+                    setTotalPages(data.totalPages ?? 0);
                 })
                 .catch((e) => console.error(e));
         } else {
             postApi
                 .getAll(page)
                 .then((data) => {
-                    setPosts(data.content);
-                    setTotalPages(data.totalPages);
+                    setPosts(data.content ?? []);
+                    setTotalPages(data.totalPages ?? 0);
                 })
                 .catch((e) => console.error(e));
         }
@@ -47,8 +47,8 @@ function FeedPage() {
         postApi
             .search(keyword, tag, 0)
             .then((data) => {
-                setPosts(data.content);
-                setTotalPages(data.totalPages);
+                setPosts(data.content ?? []);
+                setTotalPages(data.totalPages ?? 0);
             })
             .catch((e) => console.error(e));
     };

@@ -33,7 +33,7 @@ function ProfilePage() {
             .catch((e) => setError(e.message));
         postApi
             .getByMember(memberId)
-            .then((data) => setPosts(data.content))
+            .then((data) => setPosts(data.content ?? []))
             .catch(() => {});
     }, [memberId]);
 
@@ -42,7 +42,7 @@ function ProfilePage() {
         followApi
             .getFollowing(me.memberId)
             .then((data) => {
-                const following = data.content.some(
+                const following = (data.content ?? []).some(
                     (f) => f.memberId === Number(memberId)
                 );
                 setIsFollowing(following);
@@ -51,7 +51,7 @@ function ProfilePage() {
         subscriptionApi
             .getSubscriptions(me.memberId)
             .then((data) => {
-                const subscribed = data.content.some(
+                const subscribed = (data.content ?? []).some(
                     (s) => s.memberId === Number(memberId)
                 );
                 setIsSubscribed(subscribed);
