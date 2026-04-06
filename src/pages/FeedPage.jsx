@@ -223,6 +223,13 @@ function FeedPage() {
                 return (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '20px', alignItems: 'center' }}>
                         <button
+                            onClick={() => setPage(0)}
+                            disabled={page === 0}
+                            style={{ padding: '8px 12px', background: '#eee', color: page === 0 ? '#ccc' : '#333', cursor: page === 0 ? 'default' : 'pointer' }}
+                        >
+                            «
+                        </button>
+                        <button
                             onClick={() => setPage(groupStart - 1)}
                             disabled={groupStart === 0}
                             style={{ padding: '8px 12px', background: '#eee', color: groupStart === 0 ? '#ccc' : '#333', cursor: groupStart === 0 ? 'default' : 'pointer' }}
@@ -247,6 +254,13 @@ function FeedPage() {
                             style={{ padding: '8px 12px', background: '#eee', color: groupEnd >= totalPages ? '#ccc' : '#333', cursor: groupEnd >= totalPages ? 'default' : 'pointer' }}
                         >
                             ›
+                        </button>
+                        <button
+                            onClick={() => setPage(totalPages - 1)}
+                            disabled={page === totalPages - 1}
+                            style={{ padding: '8px 12px', background: '#eee', color: page === totalPages - 1 ? '#ccc' : '#333', cursor: page === totalPages - 1 ? 'default' : 'pointer' }}
+                        >
+                            »
                         </button>
                     </div>
                 );
