@@ -216,28 +216,41 @@ function FeedPage() {
             ))}
 
             {/* 페이지 버튼 */}
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    marginTop: '20px',
-                }}
-            >
-                {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                        key={i}
-                        onClick={() => setPage(i)}
-                        style={{
-                            padding: '8px 12px',
-                            background: page === i ? '#333' : '#eee',
-                            color: page === i ? '#fff' : '#333',
-                        }}
-                    >
-                        {i + 1}
-                    </button>
-                ))}
-            </div>
+            {totalPages > 0 && (() => {
+                const GROUP = 6;
+                const groupStart = Math.floor(page / GROUP) * GROUP;
+                const groupEnd = Math.min(groupStart + GROUP, totalPages);
+                return (
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '20px', alignItems: 'center' }}>
+                        <button
+                            onClick={() => setPage(groupStart - 1)}
+                            disabled={groupStart === 0}
+                            style={{ padding: '8px 12px', background: '#eee', color: groupStart === 0 ? '#ccc' : '#333', cursor: groupStart === 0 ? 'default' : 'pointer' }}
+                        >
+                            ‹
+                        </button>
+                        {Array.from({ length: groupEnd - groupStart }, (_, i) => {
+                            const p = groupStart + i;
+                            return (
+                                <button
+                                    key={p}
+                                    onClick={() => setPage(p)}
+                                    style={{ padding: '8px 12px', background: page === p ? '#333' : '#eee', color: page === p ? '#fff' : '#333' }}
+                                >
+                                    {p + 1}
+                                </button>
+                            );
+                        })}
+                        <button
+                            onClick={() => setPage(groupEnd)}
+                            disabled={groupEnd >= totalPages}
+                            style={{ padding: '8px 12px', background: '#eee', color: groupEnd >= totalPages ? '#ccc' : '#333', cursor: groupEnd >= totalPages ? 'default' : 'pointer' }}
+                        >
+                            ›
+                        </button>
+                    </div>
+                );
+            })()}
         </div>
     );
 }
