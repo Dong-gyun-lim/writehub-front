@@ -18,7 +18,8 @@ const request = async (method, url, body = null) => {
 
     // 204 No Content는 body 없음
     if (response.status === 204) return null;
-    return response.json();
+    const json = await response.json();
+    return json.data !== undefined ? json.data : json;
 };
 
 // 회원 API

@@ -101,7 +101,7 @@ function ProfilePage() {
         }
     };
 
-    if (!profile) return <div style={{ padding: '20px' }}>로딩 중...</div>;
+    if (!profile) return <div style={{ padding: '20px' }}>{error || '로딩 중...'}</div>;
 
     return (
         <div style={{ maxWidth: '700px', margin: '0 auto', padding: '20px' }}>
